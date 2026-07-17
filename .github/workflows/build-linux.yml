@@ -1,0 +1,55 @@
+name: Build Linux Binary
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Tk system libraries
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y python3-tk tk-dev
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+
+      - name: Build binary with PyInstaller
+        run: |
+          pyinstaller --onefile --windowed --name SimpleBot --add-data "knowledge_seed.json:." simplebot_gui.py
+
+      - name: Package with desktop file and icon
+        run: |
+          mkdir -p package
+          cp dist/SimpleBot package/
+          cp icon.png package/simplebot.png
+          cat > package/SimpleBot.desktop << 'EOF'
+          [Desktop Entry]
+          Type=Application
+          Name=SimpleBot
+          Exec=./SimpleBot
+          Icon=simplebot.png
+          Terminal=false
+          Categories=Utility;
+          EOF
+          chmod +x package/SimpleBot
+          tar -czf SimpleBot-linux.tar.gz -C package .
+
+      - name: Upload binary as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: SimpleBot-linux
+          path: SimpleBot-linux.tar.gz
