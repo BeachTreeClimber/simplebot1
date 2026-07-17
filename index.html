@@ -1,0 +1,382 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SimpleBot</title>
+<style>
+  :root {
+    --brand: #3a7ce8;
+    --brand-dark: #2a5cb3;
+    --bot-bubble: #e3ecf7;
+    --bg: #f4f6f8;
+    --text: #1a1a1a;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+  }
+  header {
+    background: linear-gradient(135deg, var(--brand), var(--brand-dark));
+    color: white;
+    padding: 64px 20px 56px;
+    text-align: center;
+  }
+  header img {
+    width: 84px;
+    height: 84px;
+    border-radius: 20px;
+    margin-bottom: 18px;
+  }
+  header h1 {
+    margin: 0 0 8px;
+    font-size: 34px;
+  }
+  header p {
+    margin: 0;
+    font-size: 17px;
+    opacity: 0.9;
+  }
+  main {
+    max-width: 880px;
+    margin: 0 auto;
+    padding: 0 20px 80px;
+  }
+  section {
+    margin-top: 56px;
+  }
+  h2 {
+    font-size: 22px;
+    margin-bottom: 20px;
+  }
+  .downloads {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+  }
+  .card {
+    background: white;
+    border-radius: 16px;
+    padding: 24px;
+    text-align: center;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  }
+  .card .platform {
+    font-weight: 600;
+    font-size: 17px;
+    margin-bottom: 6px;
+  }
+  .card .note {
+    font-size: 13px;
+    color: #667;
+    margin-bottom: 16px;
+    min-height: 34px;
+  }
+  .btn {
+    display: inline-block;
+    background: var(--brand);
+    color: white;
+    text-decoration: none;
+    padding: 10px 22px;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 14px;
+  }
+  .btn:hover { background: var(--brand-dark); }
+
+  #chatWidget {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    height: 480px;
+  }
+  #chatLog {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .bubble {
+    max-width: 75%;
+    padding: 10px 14px;
+    border-radius: 16px;
+    font-size: 14.5px;
+    line-height: 1.4;
+    white-space: pre-wrap;
+  }
+  .bubble.bot {
+    align-self: flex-start;
+    background: var(--bot-bubble);
+    color: var(--text);
+    border-bottom-left-radius: 4px;
+  }
+  .bubble.user {
+    align-self: flex-end;
+    background: var(--brand);
+    color: white;
+    border-bottom-right-radius: 4px;
+  }
+  #chatInputRow {
+    display: flex;
+    gap: 8px;
+    padding: 12px;
+    border-top: 1px solid #eee;
+  }
+  #chatInput {
+    flex: 1;
+    border: 1px solid #d5dbe3;
+    border-radius: 20px;
+    padding: 10px 16px;
+    font-size: 14.5px;
+    outline: none;
+  }
+  #chatSend {
+    background: var(--brand);
+    color: white;
+    border: none;
+    border-radius: 20px;
+    padding: 0 20px;
+    font-weight: 600;
+    font-size: 14px;
+  }
+  .demo-note {
+    font-size: 13px;
+    color: #778;
+    margin-top: 10px;
+  }
+  footer {
+    text-align: center;
+    padding: 30px 20px;
+    color: #99a;
+    font-size: 13px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <img src="icon.png" alt="SimpleBot icon">
+  <h1>SimpleBot</h1>
+  <p>A friendly little Q&amp;A bot &mdash; download it, or try it right here.</p>
+</header>
+
+<main>
+  <section id="download">
+    <h2>Download</h2>
+    <div class="downloads">
+      <div class="card">
+        <div class="platform">macOS</div>
+        <div class="note">.dmg installer &mdash; drag to Applications</div>
+        <a class="btn" href="https://github.com/BeachTreeClimber/simplebot1/releases/download/v1.0/SimpleBot.dmg">Download for Mac</a>
+      </div>
+      <div class="card">
+        <div class="platform">Windows</div>
+        <div class="note">.exe &mdash; just double-click to run</div>
+        <a class="btn" href="https://github.com/BeachTreeClimber/simplebot1/releases/download/v1.0/SimpleBot.exe">Download for Windows</a>
+      </div>
+      <div class="card">
+        <div class="platform">Linux</div>
+        <div class="note">.tar.gz &mdash; binary + icon + launcher</div>
+        <a class="btn" href="https://github.com/BeachTreeClimber/simplebot1/releases/download/v1.0/SimpleBot-linux.tar.gz">Download for Linux</a>
+      </div>
+    </div>
+  </section>
+
+  <section id="demo">
+    <h2>Try it in your browser</h2>
+    <div id="chatWidget">
+      <div id="chatLog"></div>
+      <div id="chatInputRow">
+        <input id="chatInput" type="text" placeholder="Type a message..." autocomplete="off">
+        <button id="chatSend">Send</button>
+      </div>
+    </div>
+    <p class="demo-note">This runs entirely in your browser for a quick preview. Anything you teach it here is temporary and won't be saved &mdash; the downloadable apps remember what you teach them permanently.</p>
+  </section>
+</main>
+
+<footer>SimpleBot</footer>
+
+<script>
+(function () {
+  const chatLog = document.getElementById('chatLog');
+  const chatInput = document.getElementById('chatInput');
+  const chatSend = document.getElementById('chatSend');
+
+  let knowledge = {};
+  let state = null;          // null | 'awaiting_teach_confirm' | 'awaiting_teach_answer'
+  let pendingQuestion = null;
+
+  fetch('knowledge_seed.json')
+    .then(r => r.json())
+    .then(data => { knowledge = data; })
+    .catch(() => { knowledge = {}; });
+
+  const greetings = ["hello", "hi", "hey", "good morning", "good afternoon", "good evening"];
+  const greetingAnswers = ["Hello!", "Hi!", "Hey!", "Nice to see you.", "Hello there!"];
+  const jokes = [
+    "Why did the computer get cold? Because it left its Windows open.",
+    "Why do programmers prefer dark mode? Because light attracts bugs.",
+    "Why was the math book sad? It had too many problems.",
+    "Why did the robot go on holiday? It needed to recharge.",
+    "I told my computer I needed a break. It said no problem and froze."
+  ];
+  const facts = [
+    "Honey never spoils.",
+    "Octopuses have three hearts.",
+    "The Eiffel Tower grows slightly taller in summer.",
+    "Bananas are berries.",
+    "A day on Venus is longer than a year on Venus."
+  ];
+  const helpText = "Commands: help, time, date, joke, fact. You can also ask questions like \"what is the capital of australia\", or do maths like \"2+2\" or \"five plus six\".";
+
+  const numberWords = {
+    zero:0, one:1, two:2, three:3, four:4, five:5, six:6, seven:7, eight:8,
+    nine:9, ten:10, eleven:11, twelve:12, thirteen:13, fourteen:14, fifteen:15,
+    sixteen:16, seventeen:17, eighteen:18, nineteen:19, twenty:20
+  };
+
+  function clean(text) {
+    return text.toLowerCase().trim().replace(/[^\w\s]/g, "");
+  }
+
+  function convertWordMath(text) {
+    text = text.toLowerCase();
+    for (const [word, value] of Object.entries(numberWords)) {
+      text = text.split(word).join(String(value));
+    }
+    text = text.split("plus").join("+");
+    text = text.split("minus").join("-");
+    text = text.split("multiplied by").join("*");
+    text = text.split("times").join("*");
+    text = text.split("divided by").join("/");
+    text = text.split("over").join("/");
+    text = text.split("x").join("*");
+    return text;
+  }
+
+  function doMath(text) {
+    let expr = convertWordMath(text).replace(/\s+/g, "");
+    if (!/^[0-9+\-*/().]+$/.test(expr)) return null;
+    try {
+      // eslint-disable-next-line no-new-func
+      const result = Function('"use strict"; return (' + expr + ')')();
+      if (typeof result !== "number" || !isFinite(result)) return null;
+      return Number.isInteger(result) ? String(result) : String(result);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  // Simple Levenshtein-ratio based fuzzy match (rough JS stand-in for rapidfuzz)
+  function levenshtein(a, b) {
+    const m = a.length, n = b.length;
+    const dp = Array.from({length: m + 1}, () => new Array(n + 1).fill(0));
+    for (let i = 0; i <= m; i++) dp[i][0] = i;
+    for (let j = 0; j <= n; j++) dp[0][j] = j;
+    for (let i = 1; i <= m; i++) {
+      for (let j = 1; j <= n; j++) {
+        dp[i][j] = a[i-1] === b[j-1]
+          ? dp[i-1][j-1]
+          : 1 + Math.min(dp[i-1][j], dp[i][j-1], dp[i-1][j-1]);
+      }
+    }
+    return dp[m][n];
+  }
+
+  function similarity(a, b) {
+    const maxLen = Math.max(a.length, b.length);
+    if (maxLen === 0) return 1;
+    return 1 - levenshtein(a, b) / maxLen;
+  }
+
+  function searchKnowledge(question) {
+    const q = clean(question);
+    const keys = Object.keys(knowledge);
+    if (keys.length === 0) return null;
+
+    if (knowledge[q] !== undefined) return knowledge[q];
+
+    let best = null, bestScore = -1;
+    for (const key of keys) {
+      const score = similarity(q, key);
+      if (score > bestScore) { bestScore = score; best = key; }
+    }
+    if (bestScore > 0.82) return knowledge[best];
+    return null;
+  }
+
+  function addBubble(text, who) {
+    const div = document.createElement('div');
+    div.className = 'bubble ' + who;
+    div.textContent = text;
+    chatLog.appendChild(div);
+    chatLog.scrollTop = chatLog.scrollHeight;
+  }
+
+  function getResponse(userText) {
+    const text = clean(userText);
+
+    if (greetings.includes(text)) return greetingAnswers[Math.floor(Math.random() * greetingAnswers.length)];
+    if (text === "help") return helpText;
+    if (text === "time") return new Date().toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
+    if (text === "date") return new Date().toLocaleDateString([], {weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'});
+    if (text === "joke") return jokes[Math.floor(Math.random() * jokes.length)];
+    if (text === "fact") return facts[Math.floor(Math.random() * facts.length)];
+
+    const mathAnswer = doMath(userText);
+    if (mathAnswer !== null) return mathAnswer;
+
+    const result = searchKnowledge(userText);
+    if (result !== null) return result;
+
+    state = 'awaiting_teach_confirm';
+    pendingQuestion = userText;
+    return "I don't know that. Want to teach me? (yes/no)";
+  }
+
+  function handleSend() {
+    const text = chatInput.value.trim();
+    if (!text) return;
+    chatInput.value = '';
+    addBubble(text, 'user');
+
+    let reply;
+    if (state === 'awaiting_teach_confirm') {
+      state = null;
+      if (clean(text) === 'yes' || clean(text) === 'y') {
+        state = 'awaiting_teach_answer';
+        reply = "What's the answer?";
+      } else {
+        pendingQuestion = null;
+        reply = "Okay.";
+      }
+    } else if (state === 'awaiting_teach_answer') {
+      knowledge[clean(pendingQuestion)] = text;
+      state = null;
+      pendingQuestion = null;
+      reply = "Thanks! I've learned something new (just for this session).";
+    } else {
+      reply = getResponse(text);
+    }
+
+    addBubble(reply, 'bot');
+  }
+
+  chatSend.addEventListener('click', handleSend);
+  chatInput.addEventListener('keydown', e => { if (e.key === 'Enter') handleSend(); });
+
+  addBubble("Hi! I'm SimpleBot. Type 'help' to see what I can do.", 'bot');
+})();
+</script>
+
+</body>
+</html>
